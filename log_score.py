@@ -1,16 +1,27 @@
-import sys
+# log_score.py
+import requests
 from datetime import datetime
 
-def log_score(player_name, difficulty, elapsed_time):
-    difficulty_map = {1: "Easy", 2: "Medium", 3: "Hard"}
-    difficulty_label = difficulty_map.get(difficulty, "Unknown")
+def log_score(name, difficulty, time_sec):
+    log_line = f"{datetime.now().isoformat()}| {name}| {difficulty}| {time_sec:.2f} sec\n"
     with open("scores.txt", "a") as f:
-        f.write(f"{datetime.now()} | {player_name} | {difficulty_label} | {elapsed_time:.2f} sec\n")
+        f.write(log_line)
 
+    # Optional: send to server
+    try:
+        response = requests.post("https://your-server.com/api/score", json={
+            "name": name,
+            "difficulty": difficulty,
+            "time_sec": time_sec
+        })
+        response.raise_for_status()
+    except Exception as e:
+        print("Failed to send score:", e)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: log_score.py <player_name> <score>")
-        sys.exit(1)
+    import sys
+    if len(sys.argv) != 4:
+        print("Usage: log_score.py <name> <difficulty> <time>")
+    else:
+        log_score(sys.argv[1], sys.argv[2], float(sys.argv[3]))
 
-    log_score(sys.argv[1], sys.argv[2])

@@ -102,9 +102,9 @@ void gameplay(int n, char **map, BombConfig config)
             system(command);
 
            int score =100;
-            char command[256];
-            snprintf(command, sizeof(command), "python3 log_score.py \"%s\" %d", player_name, score);
-            system(command);
+           snprintf(command, sizeof(command), "python3 log_score.py \"%s\" %d", player_name, score);
+           system(command);
+           
 
 
             playing = 0;

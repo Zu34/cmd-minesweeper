@@ -31,7 +31,7 @@ int load_config(const char *filename, int *board_size, BombConfig *config) {
             } else if (strcmp(key, "bomb_hard") == 0) {
                 config->hard = value;
             }
-            // else ignore unknown keys
+            // else ignore 
         }
     }
 

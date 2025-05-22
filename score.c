@@ -1,4 +1,5 @@
 // score.c
+#include <Python.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,3 +43,38 @@ void display_top_scores() {
                scores[i].difficulty, scores[i].time_sec);
     }
 }
+
+void log_score_python(const char *name, const char *difficulty, double time_sec) {
+    Py_Initialize();
+
+    PyObject *pName = PyUnicode_DecodeFSDefault("log_score");
+    PyObject *pModule = PyImport_Import(pName);
+    Py_DECREF(pName);
+
+    if (pModule) {
+        PyObject *pFunc = PyObject_GetAttrString(pModule, "log_score");
+        if (pFunc && PyCallable_Check(pFunc)) {
+            PyObject *pArgs = PyTuple_New(3);
+            PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(name));
+            PyTuple_SetItem(pArgs, 1, PyUnicode_FromString(difficulty));
+            PyTuple_SetItem(pArgs, 2, PyFloat_FromDouble(time_sec));
+
+            PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+            if (!pValue) PyErr_Print();
+
+            Py_XDECREF(pValue);
+            Py_DECREF(pArgs);
+            Py_DECREF(pFunc);
+        } else {
+            PyErr_Print();
+            fprintf(stderr, "Python function 'log_score' not callable.\n");
+        }
+        Py_DECREF(pModule);
+    } else {
+        PyErr_Print();
+        fprintf(stderr, "Failed to load Python module 'log_score'\n");
+    }
+
+    Py_Finalize();
+}
+
