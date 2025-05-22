@@ -6,6 +6,8 @@
 #include "game.h"
 #include "map.h"
 #include "utils.h"
+#include "score.h"
+
 
 #define CONFIG_FILE "minesweeper.cfg"
 

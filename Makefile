@@ -5,7 +5,7 @@ CFLAGS = -Wall -Wextra -std=c99
 # Files
 SRC = main.c game.c map.c utils.c
 OBJ = $(SRC:.c=.o)
-DEPS = game.h map.h utils.h
+DEPS = game.h map.h utils.h score.o
 
 # Output
 TARGET = minesweeper

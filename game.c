@@ -1,3 +1,4 @@
+#include <Python.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -113,4 +114,40 @@ void gameplay(int n, char **map, BombConfig config)
     free_mem((void **)fog, n + 2);
 }
 
+void log_score_python(const char *player_name, int score) {
+    Py_Initialize();  // Start interpreter
+
+    PyObject *pName = PyUnicode_DecodeFSDefault("log_score");
+    PyObject *pModule = PyImport_Import(pName);
+    Py_DECREF(pName);
+
+    if (pModule != NULL) {
+        PyObject *pFunc = PyObject_GetAttrString(pModule, "log_score");
+        if (pFunc && PyCallable_Check(pFunc)) {
+            PyObject *pArgs = PyTuple_New(2);
+            PyTuple_SetItem(pArgs, 0, PyUnicode_FromString(player_name));
+            PyTuple_SetItem(pArgs, 1, PyLong_FromLong(score));
+
+            PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+            Py_DECREF(pArgs);
+
+            if (pValue != NULL) {
+                Py_DECREF(pValue);
+            } else {
+                PyErr_Print();
+                fprintf(stderr, "Call to Python log_score failed\n");
+            }
+            Py_XDECREF(pFunc);
+        } else {
+            PyErr_Print();
+            fprintf(stderr, "Function log_score not found or not callable\n");
+        }
+        Py_DECREF(pModule);
+    } else {
+        PyErr_Print();
+        fprintf(stderr, "Failed to load Python module\n");
+    }
+
+    Py_Finalize();  // Shut down interpreter
+}
 
