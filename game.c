@@ -100,6 +100,12 @@ void gameplay(int n, char **map, BombConfig config)
             snprintf(command, sizeof(command), "./scoreboard.sh add %s %s %d", player_name, difficulty_str, elapsed_seconds);
             system(command);
 
+           int score =100;
+            char command[256];
+            snprintf(command, sizeof(command), "python3 log_score.py \"%s\" %d", player_name, score);
+            system(command);
+
+
             playing = 0;
         }
     }
