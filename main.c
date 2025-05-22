@@ -1,37 +1,59 @@
-
-// main.c
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "game.h"
 #include "map.h"
 #include "utils.h"
 
-int main(void)
-{
-    BombConfig bomb_config = {
-        .easy = 10,     // Max ~63
-        .medium = 50,   // Max ~255
-        .hard = 100     // Max ~575
-    };
+#define CONFIG_FILE "minesweeper.cfg"
 
-    int difficulty = main_menu();  // Returns 1 (Easy), 2 (Medium), 3 (Hard), or 0 (Quit)
-    if (difficulty == 0) {
-        printf("Goodbye!\n");
-        return 0;
+int difficulty_from_string(const char *arg) {
+    if (strcmp(arg, "easy") == 0) {
+        return 1;  // Easy
+    } else if (strcmp(arg, "medium") == 0) {
+        return 2;  // Medium
+    } else if (strcmp(arg, "hard") == 0) {
+        return 3;  // Hard
+    }
+    return 0;  
+}
+
+int main(int argc, char *argv[]) {
+    int board_size = 10;  
+    BombConfig config = {10, 50, 100};  // default bombs
+
+    
+    load_config(CONFIG_FILE, &board_size, &config);
+
+    int difficulty = 0;
+
+    if (argc > 1) {
+        difficulty = difficulty_from_string(argv[1]);
+        if (difficulty == 0) {
+            printf("Invalid difficulty argument.\n");
+            return 1;
+        }
+    } else {
+        difficulty = main_menu(); 
+        if (difficulty == 0) {
+            printf("Goodbye!\n");
+            return 0;
+        }
     }
 
-    int n = difficulty * 8 + 2; // e.g., 10x10, 18x18, 26x26 + 2 for border padding
+    // Adjust board size 
+    int n = board_size + 2;  // +padding
 
     char **map = generate_map(n);
     if (!map) {
-        fprintf(stderr, "Failed to allocate memory for map.\n");
+        fprintf(stderr, "Memory allocation failed. Aborting.\n");
         return 1;
     }
 
-    place_bombs(map, n - 2, bomb_config); // -2 to account for internal playable area
+    place_bombs(map, n - 2, config);  // - padding
 
     refresh_screen();
-    gameplay(n, map, bomb_config);
+    gameplay(n, map, config);
 
     free_mem((void **)map, n);
     return 0;

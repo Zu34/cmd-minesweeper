@@ -11,6 +11,7 @@ typedef struct {
 // Game flow
 int main_menu(void);
 void gameplay(int n, char **map, BombConfig config);
+int load_config(const char *filename, int *board_size, BombConfig *config);
 
 // Map utilities
 char **generate_map(int n);
